@@ -1,0 +1,14 @@
+version: '3'
+services:
+  keycloak:
+    container_name: keycloak_dev
+    image: quay.io/keycloak/keycloak:21.0.2
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    volumes:
+      - ./target/keycloak-authenticator-wmp-1.0-SNAPSHOT.jar:/opt/keycloak/providers/keycloak-authenticator-wmp-1.0-SNAPSHOT.jar:ro
+    command:
+      - start-dev
