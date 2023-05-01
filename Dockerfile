@@ -5,14 +5,16 @@ ADD https://dlcdn.apache.org/maven/maven-3/3.9.1/binaries/apache-maven-3.9.1-bin
 RUN tar xzf /opt/apache-maven-3.9.1-bin.tar.gz -C /opt/ && \
     rm -f /opt/apache-maven-3.9.1-bin.tar.gz
 
-ENV MAVEN_HOME=/opt/apache-maven-3.9.1 \
+ENV MAVEN_HOME=/opt/apache-maven-3.9.1; \
     PATH=$PATH:$MAVEN_HOME/bin
 
 ENV APP_HOME=/opt/keycloak-authenticator-wmp
 
 WORKDIR $APP_HOME
 
-RUN mvn clean package -DskipTests -Dmaven.test.skip
+ADD . .
+
+RUN /opt/apache-maven-3.9.1/bin/mvn clean package -DskipTests -Dmaven.test.skip
 
 FROM quay.io/keycloak/keycloak:21.0.2
 
