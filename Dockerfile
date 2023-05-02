@@ -14,7 +14,7 @@ WORKDIR $APP_HOME
 
 ADD . .
 
-RUN /opt/apache-maven-3.9.1/bin/mvn clean package -DskipTests -Dmaven.test.skip
+RUN /opt/apache-maven-3.9.1/bin/mvn -U clean package -DskipTests -Dmaven.test.skip
 
 FROM quay.io/keycloak/keycloak:21.0.2
 
