@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author liwh01@mingyuanyun.com
@@ -98,27 +99,23 @@ public class WeChatMiniProgramAuthorizationCodeAuthenticator extends AbstractDir
 
         String openid = getJsonProperty(responseJSON, "openid");
         log.info("用户openid: {}", openid);
-        ctx.getSession().users().searchForUserByUserAttributeStream(ctx.getRealm(), "openid", openid)
-            .findFirst()
-            .ifPresentOrElse(
-                user -> {
-                    log.info("用户已存在, openid: {}", openid);
-                    ctx.setUser(user);
-                    ctx.success();
-                },
-                () -> {
-                    log.info("用户不存在, openid: {}", openid);
-                    String unionid = getJsonProperty(responseJSON, "unionid");
-                    log.info("用户unionid: {}", unionid);
-                    UserModel user = ctx.getSession().users().addUser(ctx.getRealm(), openid);
-                    user.setEnabled(true);
-                    user.setSingleAttribute("openid", openid);
-                    user.setSingleAttribute("unionid", unionid);
-                    ctx.setUser(user);
-                    ctx.success();
-                }
-            );
-
+        Optional<UserModel> selectedUser = ctx.getSession().users().searchForUserByUserAttributeStream(ctx.getRealm(), "openid", openid)
+            .findFirst();
+        if (selectedUser.isPresent()) {
+            log.info("用户已存在, openid: {}", openid);
+            ctx.setUser(selectedUser.get());
+            ctx.success();
+        } else {
+            log.info("用户不存在, openid: {}", openid);
+            String unionid = getJsonProperty(responseJSON, "unionid");
+            log.info("用户unionid: {}", unionid);
+            UserModel user = ctx.getSession().users().addUser(ctx.getRealm(), openid);
+            user.setEnabled(true);
+            user.setSingleAttribute("openid", openid);
+            user.setSingleAttribute("unionid", unionid);
+            ctx.setUser(user);
+            ctx.success();
+        }
     }
 
     private static String getJsonProperty(JsonNode jsonNode, String key) {
