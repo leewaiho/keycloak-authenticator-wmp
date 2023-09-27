@@ -99,7 +99,7 @@ public class WeChatMiniProgramAuthorizationCodeAuthenticator extends AbstractDir
 
         String openid = getJsonProperty(responseJSON, "openid");
         log.info("用户openid: {}", openid);
-        Optional<UserModel> selectedUser = ctx.getSession().users().searchForUserByUserAttributeStream(ctx.getRealm(), "wmp_" + appId + "_openid", openid)
+        Optional<UserModel> selectedUser = ctx.getSession().users().searchForUserByUserAttributeStream(ctx.getRealm(), getOpenIDAttributeName(appId), openid)
             .findFirst();
         if (selectedUser.isPresent()) {
             log.info("用户已存在, openid: {}", openid);
@@ -111,11 +111,19 @@ public class WeChatMiniProgramAuthorizationCodeAuthenticator extends AbstractDir
             log.info("用户unionid: {}", unionid);
             UserModel user = ctx.getSession().users().addUser(ctx.getRealm(), openid);
             user.setEnabled(true);
-            user.setSingleAttribute("openid", openid);
-            user.setSingleAttribute("unionid", unionid);
+            user.setSingleAttribute(getOpenIDAttributeName(appId), openid);
+            user.setSingleAttribute(getUnionIDAttributeName(appId), unionid);
             ctx.setUser(user);
             ctx.success();
         }
+    }
+
+    private static String getOpenIDAttributeName(String appId) {
+        return "wmp_" + appId + "_openid";
+    }
+
+    private static String getUnionIDAttributeName(String appId) {
+        return "wmp_" + appId + "_unionid";
     }
 
     private static String getJsonProperty(JsonNode jsonNode, String key) {
