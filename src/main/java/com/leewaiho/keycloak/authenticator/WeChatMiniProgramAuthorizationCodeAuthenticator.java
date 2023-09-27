@@ -99,7 +99,7 @@ public class WeChatMiniProgramAuthorizationCodeAuthenticator extends AbstractDir
 
         String openid = getJsonProperty(responseJSON, "openid");
         log.info("用户openid: {}", openid);
-        Optional<UserModel> selectedUser = ctx.getSession().users().searchForUserByUserAttributeStream(ctx.getRealm(), "openid", openid)
+        Optional<UserModel> selectedUser = ctx.getSession().users().searchForUserByUserAttributeStream(ctx.getRealm(), "wmp_" + appId + "_openid", openid)
             .findFirst();
         if (selectedUser.isPresent()) {
             log.info("用户已存在, openid: {}", openid);
